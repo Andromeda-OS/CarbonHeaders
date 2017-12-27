@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000-2008 by Apple Inc.. All rights reserved.
+ * Copyright (c) 2000-2014 by Apple Inc.. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
  * 
@@ -52,16 +52,36 @@
 
     TARGET_OS_* 
     These conditionals specify in which Operating System the generated code will
-    run. The MAC/WIN32/UNIX conditionals are mutually exclusive.  The EMBEDDED/IPHONE 
-	conditionals are variants of TARGET_OS_MAC. 
+    run.  Indention is used to show which conditionals are evolutionary subclasses.  
+    
+    The MAC/WIN32/UNIX conditionals are mutually exclusive.
+    The IOS/TV/WATCH conditionals are mutually exclusive.
+    
+    
+        TARGET_OS_WIN32           - Generated code will run under 32-bit Windows
+        TARGET_OS_UNIX            - Generated code will run under some Unix (not OSX) 
+        TARGET_OS_MAC             - Generated code will run under Mac OS X variant
+           TARGET_OS_OSX          - Generated code will run under OS X devices
+           TARGET_OS_IPHONE          - Generated code for firmware, devices, or simulator
+              TARGET_OS_IOS             - Generated code will run under iOS 
+              TARGET_OS_TV              - Generated code will run under Apple TV OS
+              TARGET_OS_WATCH           - Generated code will run under Apple Watch OS
+              TARGET_OS_BRIDGE          - Generated code will run under Bridge devices
+           TARGET_OS_SIMULATOR      - Generated code will run under a simulator
+           TARGET_OS_EMBEDDED       - Generated code for firmware
+       
+        TARGET_IPHONE_SIMULATOR   - DEPRECATED: Same as TARGET_OS_SIMULATOR
+        TARGET_OS_NANO            - DEPRECATED: Same as TARGET_OS_WATCH
 
-        TARGET_OS_MAC           - Generate code will run under Mac OS
-        TARGET_OS_WIN32         - Generate code will run under 32-bit Windows
-        TARGET_OS_UNIX          - Generate code will run under some non Mac OS X unix 
-        TARGET_OS_EMBEDDED      - Generate code will run under an embedded OS variant
-                                  of TARGET_OS_MAC
-        TARGET_OS_IPHONE        - Generate code will run under iPhone OS which 
-                                  is a variant of TARGET_OS_MAC.
+      +------------------------------------------------+
+      |                TARGET_OS_MAC                   |
+      | +---+  +-------------------------------------+ |
+      | |   |  |          TARGET_OS_IPHONE           | |
+      | |OSX|  | +-----+ +----+ +-------+ +--------+ | |
+      | |   |  | | IOS | | TV | | WATCH | | BRIDGE | | |
+      | |   |  | +-----+ +----+ +-------+ +--------+ | |
+      | +---+  +-------------------------------------+ |
+      +------------------------------------------------+
 
     TARGET_RT_* 
     These conditionals specify in which runtime the generated code will
@@ -73,9 +93,6 @@
         TARGET_RT_64_BIT        - Generated code uses 64-bit pointers    
         TARGET_RT_MAC_CFM       - TARGET_OS_MAC is true and CFM68K or PowerPC CFM (TVectors) are used
         TARGET_RT_MAC_MACHO     - TARGET_OS_MAC is true and Mach-O/dlyd runtime is used
-
-
-    TARGET_IPHONE_SIMULATOR     - Generate code for running under iPhone Simulator
         
 
 ****************************************************************************************************/
@@ -88,9 +105,16 @@
     #define TARGET_OS_MAC               1
     #define TARGET_OS_WIN32             0
     #define TARGET_OS_UNIX              0
-    #define TARGET_OS_EMBEDDED          @CONFIG_EMBEDDED@ 
-    #define TARGET_OS_IPHONE            @CONFIG_IPHONE@ 
-    #define TARGET_IPHONE_SIMULATOR     @CONFIG_IPHONE_SIMULATOR@ 
+    #define TARGET_OS_OSX               1
+    #define TARGET_OS_IPHONE            0
+    #define TARGET_OS_IOS               0
+    #define TARGET_OS_WATCH             0
+    #define TARGET_OS_BRIDGE            0
+    #define TARGET_OS_TV                0
+    #define TARGET_OS_SIMULATOR         0
+    #define TARGET_OS_EMBEDDED          0 
+    #define TARGET_IPHONE_SIMULATOR     TARGET_OS_SIMULATOR /* deprecated */
+    #define TARGET_OS_NANO              TARGET_OS_WATCH /* deprecated */ 
     #if defined(__ppc__) 
         #define TARGET_CPU_PPC          1
         #define TARGET_CPU_PPC64        0
@@ -98,6 +122,7 @@
         #define TARGET_CPU_X86          0
         #define TARGET_CPU_X86_64       0
         #define TARGET_CPU_ARM          0
+        #define TARGET_CPU_ARM64        0
         #define TARGET_CPU_MIPS         0
         #define TARGET_CPU_SPARC        0   
         #define TARGET_CPU_ALPHA        0
@@ -118,6 +143,7 @@
         #define TARGET_CPU_X86          0
         #define TARGET_CPU_X86_64       0
         #define TARGET_CPU_ARM          0
+        #define TARGET_CPU_ARM64        0
         #define TARGET_CPU_MIPS         0
         #define TARGET_CPU_SPARC        0   
         #define TARGET_CPU_ALPHA        0
@@ -126,13 +152,14 @@
         #define TARGET_RT_64_BIT        1
         #define TARGET_RT_MAC_CFM       0
         #define TARGET_RT_MAC_MACHO     1
-     #elif defined(__i386__) 
+    #elif defined(__i386__) 
         #define TARGET_CPU_PPC          0
         #define TARGET_CPU_PPC64        0
         #define TARGET_CPU_68K          0
         #define TARGET_CPU_X86          1
         #define TARGET_CPU_X86_64       0
         #define TARGET_CPU_ARM          0
+        #define TARGET_CPU_ARM64        0
         #define TARGET_CPU_MIPS         0
         #define TARGET_CPU_SPARC        0
         #define TARGET_CPU_ALPHA        0
@@ -141,13 +168,14 @@
         #define TARGET_RT_LITTLE_ENDIAN 1
         #define TARGET_RT_BIG_ENDIAN    0
         #define TARGET_RT_64_BIT        0
-     #elif defined(__x86_64__) 
+    #elif defined(__x86_64__) 
         #define TARGET_CPU_PPC          0
         #define TARGET_CPU_PPC64        0
         #define TARGET_CPU_68K          0
         #define TARGET_CPU_X86          0
         #define TARGET_CPU_X86_64       1
         #define TARGET_CPU_ARM          0
+        #define TARGET_CPU_ARM64        0
         #define TARGET_CPU_MIPS         0
         #define TARGET_CPU_SPARC        0
         #define TARGET_CPU_ALPHA        0
@@ -156,13 +184,14 @@
         #define TARGET_RT_LITTLE_ENDIAN 1
         #define TARGET_RT_BIG_ENDIAN    0
         #define TARGET_RT_64_BIT        1
-     #elif defined(__arm__) 
+    #elif defined(__arm__) 
         #define TARGET_CPU_PPC          0
         #define TARGET_CPU_PPC64        0
         #define TARGET_CPU_68K          0
         #define TARGET_CPU_X86          0
         #define TARGET_CPU_X86_64       0
         #define TARGET_CPU_ARM          1
+        #define TARGET_CPU_ARM64        0
         #define TARGET_CPU_MIPS         0
         #define TARGET_CPU_SPARC        0
         #define TARGET_CPU_ALPHA        0
@@ -171,9 +200,26 @@
         #define TARGET_RT_LITTLE_ENDIAN 1
         #define TARGET_RT_BIG_ENDIAN    0
         #define TARGET_RT_64_BIT        0
+    #elif defined(__arm64__)
+        #define TARGET_CPU_PPC          0
+        #define TARGET_CPU_PPC64        0
+        #define TARGET_CPU_68K          0
+        #define TARGET_CPU_X86          0
+        #define TARGET_CPU_X86_64       0
+        #define TARGET_CPU_ARM          0
+        #define TARGET_CPU_ARM64        1
+        #define TARGET_CPU_MIPS         0
+        #define TARGET_CPU_SPARC        0
+        #define TARGET_CPU_ALPHA        0
+        #define TARGET_RT_MAC_CFM       0
+        #define TARGET_RT_MAC_MACHO     1
+        #define TARGET_RT_LITTLE_ENDIAN 1
+        #define TARGET_RT_BIG_ENDIAN    0
+        #define TARGET_RT_64_BIT        1
     #else
         #error unrecognized GNU C compiler
     #endif
+
 
 
 /*
@@ -226,6 +272,7 @@
         #define TARGET_CPU_X86      0
         #define TARGET_CPU_X86_64   0
         #define TARGET_CPU_ARM      0
+        #define TARGET_CPU_ARM64    0
         #define TARGET_CPU_MIPS     0
         #define TARGET_CPU_SPARC    0
         #define TARGET_CPU_ALPHA    0
@@ -235,6 +282,7 @@
         #define TARGET_CPU_X86      0
         #define TARGET_CPU_X86_64   0
         #define TARGET_CPU_ARM      0
+        #define TARGET_CPU_ARM64    0
         #define TARGET_CPU_MIPS     0
         #define TARGET_CPU_SPARC    0
         #define TARGET_CPU_ALPHA    0
@@ -244,6 +292,7 @@
         #define TARGET_CPU_X86_64   0
         #define TARGET_CPU_68K      0
         #define TARGET_CPU_ARM      0
+        #define TARGET_CPU_ARM64    0
         #define TARGET_CPU_MIPS     0
         #define TARGET_CPU_SPARC    0
         #define TARGET_CPU_ALPHA    0
@@ -253,6 +302,7 @@
         #define TARGET_CPU_X86      0
         #define TARGET_CPU_68K      0
         #define TARGET_CPU_ARM      0
+        #define TARGET_CPU_ARM64    0
         #define TARGET_CPU_MIPS     0
         #define TARGET_CPU_SPARC    0
         #define TARGET_CPU_ALPHA    0
@@ -262,6 +312,17 @@
         #define TARGET_CPU_X86      0
         #define TARGET_CPU_X86_64   0
         #define TARGET_CPU_68K      0
+        #define TARGET_CPU_ARM64    0
+        #define TARGET_CPU_MIPS     0
+        #define TARGET_CPU_SPARC    0
+        #define TARGET_CPU_ALPHA    0
+    #elif defined(TARGET_CPU_ARM64) && TARGET_CPU_ARM64
+        #define TARGET_CPU_PPC      0
+        #define TARGET_CPU_PPC64    0
+        #define TARGET_CPU_X86      0
+        #define TARGET_CPU_X86_64   0
+        #define TARGET_CPU_68K      0
+        #define TARGET_CPU_ARM      0
         #define TARGET_CPU_MIPS     0
         #define TARGET_CPU_SPARC    0
         #define TARGET_CPU_ALPHA    0
@@ -286,6 +347,7 @@
         #define TARGET_CPU_68K    0
         #define TARGET_CPU_X86    0
         #define TARGET_CPU_ARM    0
+        #define TARGET_CPU_ARM64  0
         #define TARGET_CPU_MIPS   0
         #define TARGET_CPU_SPARC  0
         #define TARGET_CPU_ALPHA  0
